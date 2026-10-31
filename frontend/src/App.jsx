@@ -113,7 +113,7 @@ export default function App() {
 
   return (
     <div className={`app-wrapper ${isLight ? 'light' : ''}`}>
-      <DotPattern />
+      <DotPattern fade="radial" gap={24} dotSize={2} proximity={140} speed={1} />
 
       {/* Main Top Navigation Header */}
       <header className="main-navbar">

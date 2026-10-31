@@ -2,22 +2,18 @@ import { useState, useRef, useEffect } from 'react';
 
 export function VideoUpload({ onOpenGraph, onOpenChat }) {
   const [file, setFile] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState('idle'); // idle, uploading, done, error
+  const [uploadStatus, setUploadStatus] = useState('idle');
   const [uploadStage, setUploadStage] = useState('');
   const [uploadResult, setUploadResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  
-  // URL download section
+
   const [videoUrl, setVideoUrl] = useState('');
   const [urlStatus, setUrlStatus] = useState('');
   const [urlMessage, setUrlMessage] = useState('');
 
-  // Video list
   const [videos, setVideos] = useState([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
-
   const fileInputRef = useRef(null);
-
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -75,21 +71,20 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
     if (!file || uploadStatus === 'uploading') return;
 
     setUploadStatus('uploading');
-    setUploadStage('Uploading video file to server...');
+    setUploadStage('Uploading...');
     setErrorMessage('');
 
     const formData = new FormData();
     formData.append('video', file);
 
-    // Simulated stage progress indicators during long processing
     const timer1 = setTimeout(() => {
-      setUploadStage('Whisper transcribing audio to text...');
+      setUploadStage('Transcribing...');
     }, 2000);
     const timer2 = setTimeout(() => {
-      setUploadStage('Generating embeddings & extracting Knowledge Graph entities...');
+      setUploadStage('Embedding...');
     }, 7000);
     const timer3 = setTimeout(() => {
-      setUploadStage('Indexing vectors into Qdrant & writing facts to Neo4j...');
+      setUploadStage('Graphing...');
     }, 14000);
 
     try {
@@ -104,7 +99,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Upload failed with status ${response.status}`);
+        throw new Error(errData.error || `Failed: ${response.status}`);
       }
 
       const data = await response.json();
@@ -116,7 +111,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
       clearTimeout(timer2);
       clearTimeout(timer3);
       setUploadStatus('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Unknown error during upload');
+      setErrorMessage(err instanceof Error ? err.message : 'Error');
     }
   };
 
@@ -126,7 +121,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
     if (!url) return;
 
     setUrlStatus('processing');
-    setUrlMessage('Submitting video URL to download pipeline...');
+    setUrlMessage('Queuing...');
 
     try {
       const res = await fetch('http://localhost:8000/videos/from-url', {
@@ -135,31 +130,25 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
         body: JSON.stringify({ url }),
       });
 
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const data = await res.json();
+      if (!res.ok) throw new Error(`${res.status}`);
       setUrlStatus('success');
-      setUrlMessage(data.message || 'URL accepted and queued for download.');
+      setUrlMessage('Queued');
       setVideoUrl('');
     } catch (err) {
       setUrlStatus('error');
-      setUrlMessage(err instanceof Error ? err.message : 'Failed to process URL');
+      setUrlMessage(err instanceof Error ? err.message : 'Failed');
     }
   };
 
   return (
     <div className="upload-view-container">
-      <div className="upload-header">
-        <span className="upload-badge">Hybrid RAG pipeline</span>
-        <h2>Video ingestion and knowledge extraction</h2>
-        <p>
-          Upload your video to automatically transcribe audio with Whisper, generate embeddings with Ollama, store vector chunks in Qdrant, and construct nodes and relationships in Neo4j.
-        </p>
+      <div className="upload-header minimal">
+        <h2>Video upload</h2>
       </div>
 
       <div className="upload-grid">
-        {/* Drop Zone Box */}
+        {/* File upload card */}
         <div className="upload-card">
-          <h3>File upload</h3>
           <div
             className={`drop-zone ${file ? 'has-file' : ''}`}
             onDrop={handleDrop}
@@ -175,7 +164,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
             />
 
             <div className="drop-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="4" />
                 <path d="M10 8l6 4-6 4V8z" />
               </svg>
@@ -185,14 +174,13 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
               <div className="file-info">
                 <span className="file-name">{file.name}</span>
                 <span className="file-size">
-                  {(file.size / (1024 * 1024)).toFixed(2)} MB
+                  {(file.size / (1024 * 1024)).toFixed(1)} MB
                 </span>
-                <span className="file-change">Click to choose another file</span>
               </div>
             ) : (
               <div className="drop-prompt">
-                <p className="prompt-primary">Drag and drop your video file here</p>
-                <p className="prompt-secondary">or click to browse (.mp4, .mov, .mkv)</p>
+                <p className="prompt-primary">Drop video</p>
+                <p className="prompt-secondary">MP4, MOV, MKV</p>
               </div>
             )}
           </div>
@@ -203,7 +191,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
             disabled={!file || uploadStatus === 'uploading'}
             onClick={handleUpload}
           >
-            {uploadStatus === 'uploading' ? 'Processing video...' : 'Ingest into RAG and Neo4j'}
+            {uploadStatus === 'uploading' ? uploadStage : 'Ingest'}
           </button>
 
           {uploadStatus === 'uploading' && (
@@ -215,27 +203,22 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
 
           {uploadStatus === 'error' && (
             <div className="upload-error-box">
-              <p>Error: {errorMessage}</p>
+              <p>{errorMessage}</p>
             </div>
           )}
 
           {uploadStatus === 'done' && uploadResult && (
             <div className="upload-success-box">
-              <div className="success-badge">Indexed</div>
+              <span className="success-badge">Indexed</span>
               <h4>{uploadResult.filename}</h4>
-              <p className="transcript-preview">
-                {uploadResult.transcript
-                  ? `"${uploadResult.transcript.substring(0, 180)}..."`
-                  : 'Transcription indexed into Qdrant and Neo4j.'}
-              </p>
 
               {uploadResult.graph && (
                 <div className="result-graph-summary">
                   <span className="pill">
-                    {uploadResult.graph.concepts?.length || 0} Concepts Extracted
+                    {uploadResult.graph.concepts?.length || 0} concepts
                   </span>
                   <span className="pill">
-                    {uploadResult.graph.relationships?.length || 0} Relationships Created
+                    {uploadResult.graph.relationships?.length || 0} relations
                   </span>
                 </div>
               )}
@@ -246,35 +229,28 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
                   className="result-btn primary"
                   onClick={onOpenGraph}
                 >
-                  View in knowledge graph
+                  Graph
                 </button>
                 <button
                   type="button"
                   className="result-btn secondary"
                   onClick={onOpenChat}
                 >
-                  Ask questions in chat
+                  Chat
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* YouTube / Video URL Download Box (Next Step Foundation) */}
+        {/* URL and Indexed list card */}
         <div className="upload-card">
-          <div className="card-badge-row">
-            <h3>Download from URL</h3>
-            <span className="url-badge">Scheduled pipeline</span>
-          </div>
-          <p className="card-desc">
-            Paste a link to a YouTube video or remote MP4 file. The backend background worker will fetch, process, and attach it to your graph.
-          </p>
-
+          <h3>URL import</h3>
           <form onSubmit={handleUrlSubmit} className="url-form">
             <div className="url-input-wrap">
               <input
                 type="url"
-                placeholder="https://www.youtube.com/watch?v=... or .mp4 link"
+                placeholder="YouTube or video link"
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
               />
@@ -284,7 +260,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
               className="url-submit-btn"
               disabled={!videoUrl.trim() || urlStatus === 'processing'}
             >
-              {urlStatus === 'processing' ? 'Submitting...' : 'Queue URL download'}
+              {urlStatus === 'processing' ? 'Queueing...' : 'Import'}
             </button>
           </form>
 
@@ -294,26 +270,25 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
             </div>
           )}
 
-          {/* Currently Indexed Videos */}
           <div className="indexed-videos-section">
-            <h4>Indexed videos ({videos.length})</h4>
+            <h4>Indexed ({videos.length})</h4>
             {loadingVideos ? (
-              <p className="loading-txt">Loading indexed videos...</p>
+              <p className="loading-txt">Loading...</p>
             ) : videos.length === 0 ? (
-              <p className="empty-txt">No videos indexed yet.</p>
+              <p className="empty-txt">None</p>
             ) : (
               <div className="videos-list">
                 {videos.map((vid) => (
                   <div key={vid.id} className="video-item">
                     <div className="video-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="5 3 19 12 5 21 5 3" />
                       </svg>
                     </div>
                     <div className="video-details">
                       <span className="video-name">{vid.filename}</span>
                       <span className="video-concepts-count">
-                        {vid.concepts?.length || 0} concept nodes in graph
+                        {vid.concepts?.length || 0} concepts
                       </span>
                     </div>
                   </div>
