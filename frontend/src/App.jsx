@@ -144,7 +144,7 @@ export default function App() {
               <circle cx="18" cy="18" r="3" />
               <line x1="8.5" y1="8.5" x2="15.5" y2="15.5" />
             </svg>
-            Knowledge Graph
+            Knowledge graph
           </button>
 
           <button
@@ -157,7 +157,7 @@ export default function App() {
               <polyline points="17 8 12 3 7 8" />
               <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
-            Upload Video
+            Upload video
           </button>
         </nav>
 
@@ -165,7 +165,7 @@ export default function App() {
           <button
             type="button"
             className="theme-toggle-btn"
-            title="Toggle Monochrome Theme"
+            title="Toggle theme"
             onClick={() => setIsLight((prev) => !prev)}
           >
             {isLight ? (
@@ -230,7 +230,7 @@ export default function App() {
                       <div className="bubble">{msg.text}</div>
                       {msg.graphFacts && msg.graphFacts.length > 0 && (
                         <div className="facts-row">
-                          <span className="facts-label">Graph Facts:</span>
+                          <span className="facts-label">Graph facts:</span>
                           {msg.graphFacts.slice(0, 3).map((fact, idx) => (
                             <span key={idx} className="fact-pill">
                               {fact}

@@ -149,8 +149,8 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
   return (
     <div className="upload-view-container">
       <div className="upload-header">
-        <span className="upload-badge">Hybrid RAG Pipeline</span>
-        <h2>Video Ingestion & Knowledge Extraction</h2>
+        <span className="upload-badge">Hybrid RAG pipeline</span>
+        <h2>Video ingestion and knowledge extraction</h2>
         <p>
           Upload your video to automatically transcribe audio with Whisper, generate embeddings with Ollama, store vector chunks in Qdrant, and construct nodes and relationships in Neo4j.
         </p>
@@ -159,7 +159,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
       <div className="upload-grid">
         {/* Drop Zone Box */}
         <div className="upload-card">
-          <h3>File Upload</h3>
+          <h3>File upload</h3>
           <div
             className={`drop-zone ${file ? 'has-file' : ''}`}
             onDrop={handleDrop}
@@ -191,7 +191,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
               </div>
             ) : (
               <div className="drop-prompt">
-                <p className="prompt-primary">Drag & drop your video file here</p>
+                <p className="prompt-primary">Drag and drop your video file here</p>
                 <p className="prompt-secondary">or click to browse (.mp4, .mov, .mkv)</p>
               </div>
             )}
@@ -203,7 +203,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
             disabled={!file || uploadStatus === 'uploading'}
             onClick={handleUpload}
           >
-            {uploadStatus === 'uploading' ? 'Processing Video...' : 'Ingest into RAG & Neo4j'}
+            {uploadStatus === 'uploading' ? 'Processing video...' : 'Ingest into RAG and Neo4j'}
           </button>
 
           {uploadStatus === 'uploading' && (
@@ -221,7 +221,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
 
           {uploadStatus === 'done' && uploadResult && (
             <div className="upload-success-box">
-              <div className="success-badge">✓ Successfully Indexed</div>
+              <div className="success-badge">Indexed</div>
               <h4>{uploadResult.filename}</h4>
               <p className="transcript-preview">
                 {uploadResult.transcript
@@ -246,14 +246,14 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
                   className="result-btn primary"
                   onClick={onOpenGraph}
                 >
-                  View in Knowledge Graph
+                  View in knowledge graph
                 </button>
                 <button
                   type="button"
                   className="result-btn secondary"
                   onClick={onOpenChat}
                 >
-                  Ask Questions in Chat
+                  Ask questions in chat
                 </button>
               </div>
             </div>
@@ -264,7 +264,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
         <div className="upload-card">
           <div className="card-badge-row">
             <h3>Download from URL</h3>
-            <span className="url-badge">Scheduled Pipeline</span>
+            <span className="url-badge">Scheduled pipeline</span>
           </div>
           <p className="card-desc">
             Paste a link to a YouTube video or remote MP4 file. The backend background worker will fetch, process, and attach it to your graph.
@@ -284,7 +284,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
               className="url-submit-btn"
               disabled={!videoUrl.trim() || urlStatus === 'processing'}
             >
-              {urlStatus === 'processing' ? 'Submitting...' : 'Queue URL Download'}
+              {urlStatus === 'processing' ? 'Submitting...' : 'Queue URL download'}
             </button>
           </form>
 
@@ -296,7 +296,7 @@ export function VideoUpload({ onOpenGraph, onOpenChat }) {
 
           {/* Currently Indexed Videos */}
           <div className="indexed-videos-section">
-            <h4>Indexed Videos ({videos.length})</h4>
+            <h4>Indexed videos ({videos.length})</h4>
             {loadingVideos ? (
               <p className="loading-txt">Loading indexed videos...</p>
             ) : videos.length === 0 ? (

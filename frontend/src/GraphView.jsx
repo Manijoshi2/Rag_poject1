@@ -385,9 +385,9 @@ export function GraphView({ isLight, onSelectConcept }) {
       <div className="graph-toolbar">
         <div className="graph-title-block">
           <span className="graph-badge">Neo4j</span>
-          <h3>Knowledge Graph</h3>
+          <h3>Knowledge graph</h3>
           <span className="graph-count">
-            {graphData.nodes.length} Nodes • {graphData.links.length} Relations
+            {graphData.nodes.length} nodes, {graphData.links.length} relations
           </span>
         </div>
 
@@ -413,7 +413,7 @@ export function GraphView({ isLight, onSelectConcept }) {
           <button
             type="button"
             className="action-btn"
-            title="Reset Zoom & Pan"
+            title="Reset zoom and pan"
             onClick={handleResetZoom}
           >
             Reset
@@ -422,10 +422,10 @@ export function GraphView({ isLight, onSelectConcept }) {
           <button
             type="button"
             className="action-btn primary"
-            title="Save node coordinates to Neo4j database"
+            title="Save node coordinates to Neo4j"
             onClick={handleSaveCoordinates}
           >
-            Save Layout
+            Save layout
           </button>
         </div>
       </div>
@@ -455,11 +455,11 @@ export function GraphView({ isLight, onSelectConcept }) {
         <div className="graph-legend">
           <div className="legend-item">
             <span className="legend-box video" />
-            <span>Video Node</span>
+            <span>Video node</span>
           </div>
           <div className="legend-item">
             <span className="legend-box concept" />
-            <span>Concept Node</span>
+            <span>Concept node</span>
           </div>
           <div className="legend-item">
             <span className="legend-line" />
@@ -493,7 +493,7 @@ export function GraphView({ isLight, onSelectConcept }) {
             </p>
 
             <div className="connections-list">
-              <h5>Connected Facts ({connectedLinks.length}):</h5>
+              <h5>Connected facts ({connectedLinks.length}):</h5>
               {connectedLinks.length === 0 ? (
                 <p className="empty-relations">No direct connections recorded.</p>
               ) : (
@@ -522,7 +522,7 @@ export function GraphView({ isLight, onSelectConcept }) {
                 className="ask-concept-btn"
                 onClick={() => onSelectConcept(selectedNode.label)}
               >
-                Ask in Chat about &quot;{selectedNode.label}&quot;
+                Ask in chat about &quot;{selectedNode.label}&quot;
               </button>
             )}
           </div>
