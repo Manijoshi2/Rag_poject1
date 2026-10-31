@@ -294,5 +294,61 @@ func main() {
 		})
 	})
 
+	router.GET("/graph/data", func(c *gin.Context) {
+		data, err := getFullGraphData()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve graph data: " + err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, data)
+	})
+
+	router.POST("/graph/coordinates", func(c *gin.Context) {
+		var req CoordinatesBatchRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			var single NodeCoordinateUpdate
+			if err2 := c.ShouldBindJSON(&single); err2 == nil && single.ID != "" {
+				req.Coordinates = []NodeCoordinateUpdate{single}
+			} else {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "coordinates payload invalid: " + err.Error()})
+				return
+			}
+		}
+
+		if err := updateNodeCoordinates(req.Coordinates); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save coordinates: " + err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "ok",
+			"message": fmt.Sprintf("%d coordinates updated", len(req.Coordinates)),
+		})
+	})
+
+	router.GET("/videos", func(c *gin.Context) {
+		videos, err := listAllVideos()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list videos: " + err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"videos": videos})
+	})
+
+	router.POST("/videos/from-url", func(c *gin.Context) {
+		var req struct {
+			URL string `json:"url" binding:"required"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "url is required"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "staged",
+			"url":     req.URL,
+			"message": "URL accepted. Ready for background download and processing pipeline.",
+		})
+	})
+
 	router.Run(":8000")
 }
