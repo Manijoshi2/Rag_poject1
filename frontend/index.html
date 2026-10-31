@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Query</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000; --card: #12151e; --border: #232838; --focus: #475569;
+      --text: #FFFFFF; --muted: #64748b; --btn-bg: #212020; --btn-text: #FFFFFF;
+      --btn-sec: #212020; --btn-border: 1px solid #ffffff; --shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      --handle-border: rgba(255, 255, 255, 0.35);
+    }
+    body.light {
+      --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --focus: #94a3b8;
+      --text: #0f172a; --muted: #64748b; --btn-bg: #0f172a; --btn-text: #ffffff;
+      --btn-sec: #f1f5f9; --btn-border: 1px solid var(--border); --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      --handle-border: rgba(0, 0, 0, 0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif;
+      min-height: 100vh; display: grid; place-items: center; padding: 24px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      width: 100%; max-width: 600px; padding: 24px; box-shadow: var(--shadow);
+    }
+    .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .theme-btn {
+      background: var(--btn-sec); border: var(--btn-border); color: var(--text);
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 5px 12px; border-radius: 9999px; cursor: pointer;
+    }
+    body.light .theme-btn { background: transparent; color: var(--muted); border-color: var(--border); }
+    .theme-btn:hover { color: var(--text); border-color: var(--focus); }
+    .input-wrap { position: relative; width: 100%; }
+    textarea {
+      width: 100%; min-height: 84px; background: transparent; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px 20px; color: var(--text); font-family: inherit;
+      font-size: 14px; line-height: 1.5; resize: none; outline: none; display: block;
+    }
+    textarea:focus { border-color: var(--focus); }
+    .resize-handle {
+      position: absolute; right: 10px; bottom: 10px; width: 9px; height: 9px;
+      background: #F54927; border-radius: 50%; border: 1.5px solid var(--handle-border);
+      cursor: nwse-resize; user-select: none; transition: transform 0.15s;
+    }
+    .resize-handle:hover { transform: scale(1.35); }
+    .actions { display: flex; gap: 10px; margin-top: 16px; }
+    .btn {
+      font-family: inherit; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 10px 20px; border-radius: 10px; border: var(--btn-border);
+      cursor: pointer;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-exec { background: var(--btn-bg); color: var(--btn-text); }
+    .btn-clear { background: var(--btn-sec); color: var(--text); }
+    body.light .btn-exec { border-color: transparent; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="head">
+      <span class="title">Query Input</span>
+      <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">Light</button>
+    </div>
+    <div class="input-wrap">
+      <textarea id="queryInput" placeholder="Question..."></textarea>
+      <div class="resize-handle" title="Resize"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-exec" onclick="execute()">Execute</button>
+      <button class="btn btn-clear" onclick="clearInput()">Clear</button>
+    </div>
+  </div>
+  <script>
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('themeBtn').innerText = isLight ? 'Dark' : 'Light';
+    }
+    function clearInput() {
+      const el = document.getElementById('queryInput');
+      el.value = '';
+      el.focus();
+    }
+    async function execute() {
+      const q = document.getElementById('queryInput').value.trim();
+      if (!q) return;
+      try {
+        await fetch('http://localhost:8000/rag/ask', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ question: q })
+        });
+      } catch (e) {
+        console.log('Execute:', q);
+      }
+    }
+    document.querySelectorAll('.resize-handle').forEach(handle => {
+      const area = handle.previousElementSibling;
+      handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const startY = e.clientY, startH = area.offsetHeight;
+        const onMove = (ev) => {
+          area.style.height = Math.max(60, startH + (ev.clientY - startY)) + 'px';
+        };
+        const onUp = () => {
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
+    });
+    document.getElementById('queryInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); execute(); }
+    });
+  </script>
+</body>
+</html>
