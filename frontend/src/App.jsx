@@ -220,7 +220,7 @@ export default function App() {
                       <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" strokeDasharray="2 3" />
                     </svg>
                   </div>
-                  <h3>Morning, shadcn!</h3>
+                  <h3>hello, Mani!!</h3>
                   <p>What are we working on today? Press send to start a new conversation</p>
                 </div>
               ) : (
